@@ -64,7 +64,7 @@ def insert(data, cursor):
 
             wave_data[3] = datetime.strptime(wave_data[3],'%Y-%m-%dT%H:%M:%S.%fZ')
             wave_data[4] = datetime.strptime(wave_data[4],'%Y-%m-%dT%H:%M:%S.%fZ')
-            
+
             wave_data_available = [ data[name][str(n)]["DataAvailable"][key] for key in event_station_data_table_available_keys ]
             wave_data = wave_data + wave_data_available
             wave_data.append(event_station_id)
@@ -76,11 +76,11 @@ def jsons_to_mySQL(path):
     try:
         # 連接 MySQL/MariaDB 資料庫
         connection = mysql.connector.connect(
-            host='140.118.127.90',          # 主機名稱
-            port='3305',                    # port
-            database='Seismic',             # 資料庫名稱
-            user='root',                    # 帳號
-            password='earthquake_123456',   # 密碼 
+            host='host',          # 主機名稱
+            port='port',                    # port
+            database='database',             # 資料庫名稱
+            user='account',                    # 帳號
+            password='password',   # 密碼 
         )   
 
         cursor = connection.cursor()
