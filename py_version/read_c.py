@@ -327,27 +327,24 @@ def unpackPfile_2020(infile):
 
 def get_StationInfo():
     s = []
-    with open('nsta24.dat') as f:
+    with open('../nsta24.dat') as f:
         for line in f.readlines():
             l = line.strip().split()
-            # print(l)
+           
             d = {}
-            if l[-1] == '99999999':
-                d['station'] = l[0]
-                d['lon'] = float(l[1])
-                d['lat'] = float(l[2])
-                d['location'] = '0' + l[5]
-                d['institute'] = l[6]
-                d['network'] = l[7]
-                d['instrument'] = l[8]
-                d['E'] = float(l[9])
-                d['N'] = float(l[10])
-                d['Z'] = float(l[11])
-                d['start'] = l[-2]
-                d['end'] = l[-1]
-                s.append(d)
-#                 if d['institute'] == "CWB" and d['lon'] >= 119 and d['lon'] <= 123 and d['lat'] >= 21 and d['lat'] <= 27:
-#                     s.append(d)
+            d['station'] = l[0]
+            d['lon'] = float(l[1])
+            d['lat'] = float(l[2])
+            d['location'] = '0' + l[5]
+            d['institute'] = l[6]
+            d['network'] = l[7]
+            d['instrument'] = l[8]
+            d['E'] = float(l[9])
+            d['N'] = float(l[10])
+            d['Z'] = float(l[11])
+            d['start'] = l[-2]
+            d['end'] = l[-1]
+            s.append(d)
 
     return s
 
@@ -359,7 +356,7 @@ def get_factor(my_st):
     a_time = a_time[:4] + a_time[5:7] + a_time[8:10]
     st_time = int(a_time)
     instrument = ''
-
+    
     # 判斷是哪種儀器
     if st.stats.channel == 'Ch1' or st.stats.channel == 'Ch2' or st.stats.channel == 'Ch3':
         instrument = 'FBA'
@@ -374,10 +371,7 @@ def get_factor(my_st):
         end = int(s['end'])
         
         if (st_time >= starttime and st_time <= end):
-            
-            #print(s['instrument'], s['network'], s['location'], s['station'])
             if (st.stats.station == s['station'] and instrument == s['instrument'] and st.stats.network == s['network'] and st.stats.location == s['location']):
-
                 if st.stats.channel == 'Ch1' or st.stats.channel == 'Ch4' or st.stats.channel == 'Ch7':
                     return 'z', s['Z'], instrument       
                 elif st.stats.channel == 'Ch2' or st.stats.channel == 'Ch5' or st.stats.channel == 'Ch8':

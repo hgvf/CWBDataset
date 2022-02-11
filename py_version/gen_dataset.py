@@ -6,10 +6,12 @@ import json
 import matplotlib.pyplot as plt
 from obspy import read
 from tqdm import tqdm
+from calc import * 
+from extractWave import *
 from read_c import *
 
 # 取得某個階段的所有檔名
-def get_filename(root_dir, year):
+def get_filename_ap(root_dir, year):
     dir = os.listdir(root_dir)
 
     allfile = []
@@ -258,7 +260,7 @@ def concat_attributes(p):
 def modify_json(p, files, year):
     # 新增 primary key 欄位
     month = int(files[:2]) - 12
-    month = str(month) if month/10==1 else '0'+str(month)
+    month = str(month) if month//10==1 else '0'+str(month)
     version = files[-7]
     p['event'] = year[-2:] + str(month) + files[2:8] + version
     for k in p.keys():
@@ -328,7 +330,7 @@ def gen(files, save_base_path, sub_fname):
                 #continue
 
             a = unpackAfile(filename + '.A' + sub_fname)
-            if int(sub_fname) >= 20:
+            if sub_fname == '20' or sub_fname == '21':
                 p = unpackPfile_2020(pfile)  # 2020 ~
             else:
                 p = unpackPfile(pfile)   # ~ 2019 
@@ -350,31 +352,39 @@ def gen(files, save_base_path, sub_fname):
 
             # 最後修改 json 欄位
             p = modify_json(p, json_file, sub_fname)
-          
+
+            # 新制震度
+            p = modify(p)
+            
+            # 波型取出來另外存
+            p = extractWave(p, wave_save_path)
+            
             # write
             with open(save_path, 'w') as file:
                 json.dump(p, file)
             
         except Exception as e:
-            #print(e)
-            pass
-        
-    return p
+            print(e)
+            #pass
 
 if __name__ == '__main__':
-    year = input("year: ")
-    
-    sub_fname = year[2:]
-    #base_path = '/mnt/nas6/new_CWB_data/CWB_data/' + year + '/felt'
-    base_path = '/mnt/nas6/new_CWB_data_2/' + year + '/felt'
-    save_base_path = os.path.join('/mnt/nas6/CWBSN', year)
-    files = get_filename(base_path, year[-2:])
+    #year = input('year: ')
+    all_year = ['2018']
 
-    # mkdir
-    if not os.path.exists(save_base_path):
-        print('making directory...', save_base_path)
-        os.mkdir(save_base_path)
+    for year in all_year:
+        sub_fname = year[2:]
+        base_path = '/mnt/nas6/new_CWB_data/CWB_data/' + year + '/felt'
+        save_base_path = os.path.join('/mnt/nas6/CWBSN', year)
+        wave_save_path = os.path.join(save_base_path, 'wave')
+        files = get_filename_ap(base_path, year[-2:])
         
-    # generate dataset
-    gen(files, save_base_path, sub_fname)
-
+        # mkdir
+        if not os.path.exists(save_base_path):
+            print('making directory...', save_base_path)
+            os.mkdir(save_base_path)
+        if not os.path.exists(wave_save_path):
+            print('making directory...', wave_save_path)
+            os.mkdir(wave_save_path)
+            
+        # generate dataset
+        gen(files, save_base_path, sub_fname)
